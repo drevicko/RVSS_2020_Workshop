@@ -10,7 +10,7 @@ def calibrateWheelRadius():
     # For each wheel velocity, the robot scale parameter can be computed
     # by comparing the time and distance driven to the input wheel velocities.
 
-    wheel_velocities_range = range(5, 55, 5)
+    wheel_velocities_range = range(15, 55, 5)
     delta_times = []
 
     for wheel_vel in wheel_velocities_range:
