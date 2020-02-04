@@ -3,6 +3,7 @@ import os
 import sys
 sys.path.insert(0, "{}/integration".format(os.getcwd()))
 sys.path.insert(0, "../integration")
+from pathlib import Path
 import penguinPi as ppi
 
 def calibrateWheelRadius():
@@ -43,7 +44,7 @@ def calibrateWheelRadius():
 
     return scale
 
-def calibrateBaseline(self, scale):
+def calibrateBaseline(scale):
     # Compute the robot basline parameter using a range of wheel velocities.
     # For each wheel velocity, the robot scale parameter can be computed by
     # comparing the time elapsed and rotation completed to the input wheel
@@ -86,11 +87,14 @@ def calibrateBaseline(self, scale):
 if __name__ == "__main__":
     # calibrate pibot scale and baseline
     dataDir = "{}/wheel_calibration/".format(os.getcwd())
+    dataDir = Path(os.getcwd()) / "wheel_calibration"
 
     print('Calibrating PiBot scale...\n')
-    scale = calibrateWheelRadius()
+    # scale = calibrateWheelRadius()
     fileNameS = "{}scale.txt".format(dataDir)
-    np.savetxt(fileNameS, np.array([scale]), delimiter=',')
+    # np.savetxt(fileNameS, np.array([scale]), delimiter=',')
+
+    scale = np.loadtxt(fileNameS)
 
     print('Calibrating PiBot baseline...\n')
     baseline = calibrateBaseline(scale)
