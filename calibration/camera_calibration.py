@@ -7,6 +7,7 @@ import sys
 sys.path.insert(0, "{}/integration".format(os.getcwd()))
 sys.path.insert(0, "../integration")
 import penguinPi as ppi
+from pathlib import Path
 
 def camera_calibration(dataDir):
     # This file can be used to generate camera calibration parameters 
@@ -21,7 +22,7 @@ def camera_calibration(dataDir):
     allIds = []
     decimator = 0
 
-    images = np.array([dataDir + f for f in os.listdir(dataDir) if f.endswith(".png") ])
+    images = np.array([str(dataDir / f) for f in os.listdir(dataDir) if f.endswith(".png") ])
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.00001)
 
     for im in images:
@@ -95,15 +96,17 @@ def image_collection(dataDir, images_to_collect):
 if __name__ == "__main__":   
     currentDir = os.getcwd()
     dataDir = "{}/camera_calibration/".format(currentDir)
+    dataDir = Path(os.getcwd()) / "camera_calibration" \
+                                  ""
     if not os.path.exists(dataDir):
         os.makedirs(dataDir)
     images_to_collect = 20
    
     # collect data
-    print('Collecting {} images for camera calibration.'.format(images_to_collect))
-    print('Press ENTER to capture image.')
-    image_collection(dataDir, images_to_collect)
-    print('Finished image collection.\n')
+    # print('Collecting {} images for camera calibration.'.format(images_to_collect))
+    # print('Press ENTER to capture image.')
+    # image_collection(dataDir, images_to_collect)
+    # print('Finished image collection.\n')
 
     # calibrate camera
     print('Calibrating camera...')
