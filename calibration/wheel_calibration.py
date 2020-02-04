@@ -86,8 +86,8 @@ def calibrateBaseline(scale):
 
 if __name__ == "__main__":
     # calibrate pibot scale and baseline
-    dataDir = "{}/wheel_calibration/".format(os.getcwd())
     dataDir = Path(os.getcwd()) / "wheel_calibration"
+    dataDir.mkdir(parents=True, exist_ok=True)
 
     print('Calibrating PiBot scale...\n')
     # scale = calibrateWheelRadius()

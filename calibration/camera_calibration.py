@@ -95,11 +95,8 @@ def image_collection(dataDir, images_to_collect):
 
 if __name__ == "__main__":   
     currentDir = os.getcwd()
-    dataDir = "{}/camera_calibration/".format(currentDir)
-    dataDir = Path(os.getcwd()) / "camera_calibration" \
-                                  ""
-    if not os.path.exists(dataDir):
-        os.makedirs(dataDir)
+    dataDir = Path(os.getcwd()) / "camera_calibration" 
+    dataDir.mkdir(parents=True, exist_ok=True)
     images_to_collect = 20
    
     # collect data
