@@ -15,7 +15,7 @@ def parse_label_file(img_dir, output_dir):
         img_path = os.path.join(img_dir, img_name)
         img = cv2.imread(img_path)
         #
-        if df['Label'][i] != 'Skip':
+        if df['Label'][i] != 'Skip' and df['Label'][i] != '{}' :
             obj_struct = json.loads(df['Label'][i])
             obj_struct = obj_struct['objects']
             for i in range(len(obj_struct)):
