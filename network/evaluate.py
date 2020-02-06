@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from torchvision import transforms
 from tqdm import tqdm
 import matplotlib.patches as label_box
+from pathlib import Path
 
 import numpy as np
 import cv2
@@ -63,7 +64,9 @@ class Evaluate:
         print('\n Inferring ...')
         with torch.no_grad():
             sigmoid = nn.Sigmoid()
+            # sigmoid.cuda()
             for batch in tqdm(anchor_loader):
+                # batch.cuda()
                 batch = self.nn_state.to_device(batch)
                 x = self.nn_state.net(batch)
                 # HERE DEFINES THE LOGIC OF CHOOSING THE FINAL LABEL OUT OF
@@ -77,62 +80,85 @@ class Evaluate:
                 heat_map += pred.data.reshape(num_patches).tolist()
         print("--- %.3fs seconds ---" % (time.time() - start_time))
         heat_map = np.asarray(heat_map, dtype=np.uint8).reshape(w_out, h_out)
-        #-------------------
-        # Setup SimpleBlobDetector parameters.
-        params = cv2.SimpleBlobDetector_Params()
-        
-        # Change thresholds
-        params.minThreshold = 0
-        params.maxThreshold = 255
-        params.thresholdStep = 25
-        
-        # Filter by Area.
-        #params.filterByArea = True
-
-        # Create a detector with the parameters
-        ver = (cv2.__version__).split('.')
-        print(f"using opencv version {ver}")
-        if int(ver[0]) < 3 :
-            detector = cv2.SimpleBlobDetector(params)
-        else : 
-            detector = cv2.SimpleBlobDetector_create(params)
-
-        # Detect blobs.
-        print(f"heat map is a {type(heat_map)}, {heat_map.dtype} and img is a {type(img)}, {img.dtype}")
-        heat_map = self.convertHeatmapToImage(heat_map, img)
-        print(f"heat map is a {type(heat_map)}, {heat_map.dtype} and img is a {type(img)}, {img.dtype}")
-        # keypoints = detector.detect(cv2.7(heat_map, cv2.COLOR_BGR2GRAY))
-        keypoints = detector.detect(heat_map)
-        print(keypoints)
-        # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
-        im_with_keypoints = cv2.drawKeypoints(img2, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        
-        # Show keypoints
-        cv2.imshow("Keypoints", im_with_keypoints)
-        #-------------------
+        #
+        #
+        # #-------------------
+        # # Setup SimpleBlobDetector parameters.
+        # params = cv2.SimpleBlobDetector_Params()
+        #
+        # # Change thresholds
+        # params.minThreshold = 0
+        # params.maxThreshold = 255
+        # params.thresholdStep = 25
+        #
+        # # Filter by Area.
+        # # params.filterByArea = True
+        # print(params)
+        #
+        # # Create a detector with the parameters
+        # ver = (cv2.__version__).split('.')
+        # print(f"using opencv version {ver}")
+        # if int(ver[0]) < 3 :
+        #     detector = cv2.SimpleBlobDetector(params)
+        # else :
+        #     detector = cv2.SimpleBlobDetector_create(params)
+        #
+        # # Detect blobs.
+        # print(f"heat map is a {type(heat_map)}, {heat_map.dtype} and img is a {type(img)}, {img.dtype}")
+        # heat_map = self.convertHeatmapToImage(heat_map, img)
+        # print(f"heat map is a {type(heat_map)}, {heat_map.dtype} and img is a {type(img)}, {img.dtype}")
+        # # keypoints = detector.detect(cv2.7(heat_map, cv2.COLOR_BGR2GRAY))
+        #
+        # # im = cv2.imread("blob.jpg", cv2.IMREAD_GRAYSCALE)
+        # # print(f"blob is a {type(im)}")
+        # # print(f"dtype {im.dtype}")
+        # # keypoints = detector.detect(im)
+        # # print(f"Blob Keypoints: {keypoints}")
+        #
+        # # plt.imshow(heat_map)
+        # # plt.imshow(im)
+        # # plt.show()
+        # print(heat_map.shape)
+        # # exit(0)
+        #
+        #
+        # # keypoints = detector.detect(heat_map)
+        # print(keypoints)
+        # # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
+        # im_with_keypoints = cv2.drawKeypoints(img2, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        #
+        # # Show keypoints
+        # cv2.imshow("Keypoints", im_with_keypoints)
+        # #-------------------
 
         return heat_map
 
     def convertHeatmapToImage(self, heat_map, img):
         h, w = heat_map.shape
-        out = np.ones((h, w, 3), dtype=np.uint8)
-        elephant = np.array([0, 0, 0])
-        llama = np.array([25, 25, 25]) * 2
-        snake = np.array([125, 125, 125]) - 25
-        crocodile = np.array([150, 150, 150])
-        bg = np.array([255, 255, 255])
-        for i in range(h):
-            for j in range(w):
-                if heat_map[i, j] == 0:
-                    out[i, j, :] == bg
-                elif heat_map[i, j] == 1:
-                    out[i, j, :] = elephant
-                elif heat_map[i, j] == 2:
-                    out[i, j, :] = llama
-                elif heat_map[i, j] == 3:
-                    out[i, j, :] = snake
-                elif heat_map[i, j] == 4:
-                    out[i, j, :] = crocodile
+        out = np.zeros((h, w), dtype=np.uint8)
+        bg = 1
+        elephant = 2
+        llama = 3
+        snake = 5
+        crocodile = 7
+        out[heat_map == 0] = bg
+        out[heat_map == 1] = elephant
+        out[heat_map == 2] = llama
+        out[heat_map == 3] = snake
+        out[heat_map == 4] = crocodile
+
+        # for i in range(h):
+        #     for j in range(w):
+        #         if heat_map[i, j] == 0:
+        #             out[i, j] == bg
+        #         elif heat_map[i, j] == 1:
+        #             out[i, j] = elephant
+        #         elif heat_map[i, j] == 2:
+        #             out[i, j] = llama
+        #         elif heat_map[i, j] == 3:
+        #             out[i, j] = snake
+        #         elif heat_map[i, j] == 4:
+        #             out[i, j] = crocodile
         # out = Image.fromarray((out*255).astype('uint8'))
         # out = out.resize(img.size)
         # out = out.convert("RGBA")
