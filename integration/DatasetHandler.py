@@ -4,6 +4,7 @@ import time
 import csv
 import os
 import json
+from pathlib import Path
 
 class DatasetWriter:
     def __init__(self, dataset_name):
@@ -47,13 +48,15 @@ class DatasetWriter:
 
 class DatasetPlayer:
     def __init__(self, dataset_name):
-        self.kb_f = open(dataset_name+"/"+"keyboard.csv", 'r')
+        dataset_name = Path(dataset_name)
+        self.kb_f = open(dataset_name / "test/keyboard.csv", 'r')
         self.kb_fc = csv.reader(self.kb_f)
 
-        self.img_f = open(dataset_name+"/"+"images.csv", 'r')
+        self.img_f = open(dataset_name / "test/images.csv", 'r')
         self.img_fc = csv.reader(self.img_f)
 
         self.t0 = time.time()
+        self.folder = Path(dataset_name)
     
     def __del__(self):
         self.f.close()
@@ -67,7 +70,7 @@ class DatasetPlayer:
                 time.sleep(1)
 
         t = float(row[0])
-        img = cv2.imread(row[2])
+        img = cv2.imread(str(self.folder / row[2]))
         while time.time() - self.t0 < t:
             continue
         return img

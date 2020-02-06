@@ -13,8 +13,8 @@ def camera_calibration(dataDir):
     # This file can be used to generate camera calibration parameters 
     # to improve the default values
 
-    fileNameK = "{}intrinsic.txt".format(dataDir)
-    fileNameD = "{}distCoeffs.txt".format(dataDir)
+    fileNameK = dataDir / "intrinsic.txt"
+    fileNameD = dataDir / "distCoeffs.txt"
     aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_250)
     board = aruco.CharucoBoard_create(6, 4, 0.056, 0.042, aruco_dict)
 

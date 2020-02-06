@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os, sys
+from pathlib import Path
 
 # Import integration components
 sys.path.insert(0, "{}/integration".format(os.getcwd()))
@@ -46,13 +47,13 @@ class Operate:
 
     def getCalibParams(self,datadir):
         # Imports calibration parameters
-        fileK = "{}intrinsic.txt".format(datadir)
+        fileK = datadir / "camera_calibrationintrinsic.txt"
         camera_matrix = np.loadtxt(fileK, delimiter=',')
-        fileD = "{}distCoeffs.txt".format(datadir)
+        fileD = datadir / "camera_calibrationdistCoeffs.txt"
         dist_coeffs = np.loadtxt(fileD, delimiter=',')
-        fileS = "{}scale.txt".format(datadir)
+        fileS = datadir / "wheel_calibrationscale.txt"
         scale = np.loadtxt(fileS, delimiter=',')
-        fileB = "{}baseline.txt".format(datadir)  
+        fileB = datadir / "wheel_calibrationbaseline.txt"
         baseline = np.loadtxt(fileB, delimiter=',')
 
         return camera_matrix, dist_coeffs, scale, baseline
@@ -112,10 +113,11 @@ class Operate:
 if __name__ == "__main__":   
     currentDir = os.getcwd()
     datadir = "{}/testData/testCalibration/".format(currentDir)
+    datadir = Path(currentDir) / "calibration"
     
     # Use either a real or simulated penguinpi
-    ppi = integration.penguinPiC.PenguinPi(ip = '192.168.50.1')
-    # ppi = dh.DatasetPlayer("test")
+    # ppi = integration.penguinPiC.PenguinPi(ip = '192.168.50.1')
+    ppi = dh.DatasetPlayer("integration")
 
     # Set up the integrated system
     operate = Operate(datadir, ppi, writeData=False)
