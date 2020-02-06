@@ -2,6 +2,7 @@ import evaluate
 from PIL import Image
 import json
 import numpy as np
+import cv2
 
 
 class PosedImage:
@@ -30,6 +31,27 @@ class PosedImage:
 
         # There are ways to get much better bearings.
         # Try and think of better solutions than just averaging.
+
+        # Setup SimpleBlobDetector parameters.
+        params = cv2.SimpleBlobDetector_Params()
+        
+        # Change thresholds
+        params.minThreshold = 1
+        params.maxThreshold = 5
+        params.thresholdStep = 1
+        
+        # Filter by Area.
+        params.filterByArea = True
+
+        # Create a detector with the parameters
+        ver = (cv2.__version__).split('.')
+        if int(ver[0]) < 3 :
+            detector = cv2.SimpleBlobDetector(params)
+        else : 
+            detector = cv2.SimpleBlobDetector_create(params)
+
+        # Detect blobs.
+        keypoints = detector.detect(heatmap)
 
         for animal in bearings:
             bearing_dict = {"pose":self.pose.tolist(),
